@@ -1,54 +1,61 @@
-positivas = [
-    "bom",
-    "otimo",
-    "excelente",
-    "feliz",
-    "gostei",
-    "maravilhoso",
-    "incrivel",
-    "legal",
-    "amei"
-]
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
 
-# Palavras negativas
-negativas = [
-    "ruim",
-    "pessimo",
-    "horrivel",
-    "triste",
-    "odiei",
-    "terrivel",
-    "decepcionado",
-    "mal"
-]
+#Projeto PLN - utilizei a biblioteca scikit-learn
 
-print("CLASSIFICADOR DE SENTIMENTOS")
+dados = {
+    "texto": [
+        "Adorei esse filme",
+        "Muito bom",
+        "Excelente atendimento",
+        "Gostei bastante",
+        "Estou feliz",
+        "Produto maravilhoso",
+        "Não gostei",
+        "Muito ruim",
+        "Péssimo atendimento",
+        "Estou decepcionado",
+        "Foi horrível",
+        "Nunca mais compro"
+    ],
+    "sentimento": [
+        "Positivo",
+        "Positivo",
+        "Positivo",
+        "Positivo",
+        "Positivo",
+        "Positivo",
+        "Negativo",
+        "Negativo",
+        "Negativo",
+        "Negativo",
+        "Negativo",
+        "Negativo"
+    ]
+}
+
+# Criar DataFrame
+df = pd.DataFrame(dados)
+
+# Transformar texto em números
+vetor = CountVectorizer()
+X = vetor.fit_transform(df["texto"])
+
+# Criar e treinar o modelo de IA
+modelo = MultinomialNB()
+modelo.fit(X, df["sentimento"])
+
+print("=== CLASSIFICADOR DE SENTIMENTOS COM IA ===")
 
 while True:
+    frase = input("\nDigite uma frase (ou 'sair'): ")
 
-    frase = input("\nDigite uma frase (ou 'sair'): ").lower()
-
-    if frase == "sair":
+    if frase.lower() == "sair":
         print("Programa encerrado.")
         break
 
-    positivo = 0
-    negativo = 0
+    frase_transformada = vetor.transform([frase])
+    resultado = modelo.predict(frase_transformada)
 
-    palavras = frase.split()
-
-    for palavra in palavras:
-        if palavra in positivas:
-            positivo += 1
-
-        if palavra in negativas:
-            negativo += 1
-
-    if positivo > negativo:
-        print("Sentimento: POSITIVO")
-
-    elif negativo > positivo:
-        print("Sentimento: NEGATIVO")
-
-    else:
-        print("Sentimento: NEUTRO")
+    print("Sentimento:", resultado[0])
